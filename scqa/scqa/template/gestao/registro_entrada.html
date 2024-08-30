@@ -1,0 +1,104 @@
+{% extends "scqa/layout/base.html" %}
+{% block title %}{{card_title}}{% endblock %}
+{% block stylesheet %}
+{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-xl">
+        <div class="card">
+            <div class="card-header">
+                <div class="card-head-row">
+                    <div class="card-title p-2">{{card_title}}</div>
+                    <div class="card-tools">
+                        {% if is_view %}
+                        <a href="{% url 'update_biometria' form.initial.id %}" class="btn btn-primary">
+                            Editar
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <form action="{% if form.initial.id %}{% url 'registro_entrada_update' form.initial.id %}{% else %}{% url 'registro_entrada_create' %}{% endif %}"
+                      method="POST">
+                    {% csrf_token %}
+                    <div class="row">
+                        {% include 'scqa/include/base_modelform.html'%}
+                    </div>
+                    <div id="amostras">
+                        <div class="row">
+                            {% with entrada_amostra_form as form %}
+                            {% include 'scqa/include/base_modelform.html'%}
+                            {% endwith %}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-3">
+                            <div class="form-group">
+                                <button type=button class="btn btn-primary" id="add_new_amostra">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-3">
+                        </div>
+                        <div class="col-xl-3">
+                        </div>
+                        <div class="col-xl-3">
+                        </div>
+                        {% if not is_view %}
+                        <div class="col-xl-3">
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary btn-lg btn-block">
+                                    <i class="fas fa-save"></i>
+                                    <div>Salvar</div>
+                                </button>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block javascript %}
+<script>
+    $('#add_new_amostra').click(function(e) {
+        var amostra_row = document.createElement('div');
+        amostra_row.classList.add("row");
+        amostra_row.innerHTML = `{% with entrada_amostra_form as form %}{% include 'scqa/include/base_modelform.html'%}{% endwith %}`
+        document.getElementById('amostras').appendChild(amostra_row)
+    });
+</script>
+{% if form.initial.id and not is_view %}
+<script>
+    $('#delete_biometria').click(function(e) {
+	    swal({
+	        text: "Tem certeza que deseja excluir?",
+	        icon: 'info',
+	        buttons:{
+		        cancel: {
+		            text : 'Não',
+			        visible: true,
+			        className: 'btn btn-danger'
+		        },
+		        confirm: {
+			        text : 'Sim',
+			        className : 'btn btn-success'
+		        },
+	        }
+            }).then((Delete) => {
+	        if (Delete) {
+                window.location.href = "{% url 'delete_biometria' form.initial.id %}"
+	        } else {
+		        swal.close();
+	        }
+        });
+	});
+</script>
+{% endif %}
+{% endblock %}
