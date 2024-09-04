@@ -32,10 +32,10 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {% for tipo_ocorrencia in tipo_ocorrencia_lista %}
+                        {% for registro_entrada in registro_entrada_list %}
                         <tr>
-                            <td>{{tipo_ocorrencia.nome}}</td>
-                            <td><a href="{% url 'read_tipo_ocorrencia' tipo_ocorrencia.id %}" class="btn btn-icon btn-primary" style="padding-top: .65rem"><i class="fas fa-eye"></i></a></td>
+                            <td>{{registro_entrada.id_interna}}</td>
+                            <td><a href="{% url 'registro_entrada_read' registro_entrada.id %}" class="btn btn-icon btn-primary" style="padding-top: .65rem"><i class="fas fa-eye"></i></a></td>
                         </tr>
                         {% endfor %}
                         </tbody>

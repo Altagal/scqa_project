@@ -11,7 +11,7 @@
                     <div class="card-title p-2">{{card_title}}</div>
                     <div class="card-tools">
                         {% if is_view %}
-                        <a href="{% url 'update_biometria' form.initial.id %}" class="btn btn-primary">
+                        <a href="#" class="btn btn-primary">
                             Editar
                         </a>
                         {% endif %}
@@ -19,25 +19,31 @@
                 </div>
             </div>
             <div class="card-body">
-                <form action="{% if form.initial.id %}{% url 'registro_entrada_update' form.initial.id %}{% else %}{% url 'registro_entrada_create' %}{% endif %}"
+                <form action="{% if form.initial.id %}#{% else %}{% url 'registro_entrada_create' %}{% endif %}"
                       method="POST">
                     {% csrf_token %}
                     <div class="row">
+                        {% with entrada_form as form %}
                         {% include 'scqa/include/base_modelform.html'%}
+                        {% endwith %}
                     </div>
-                    <div id="amostras">
-                        <div class="row">
-                            {% with entrada_amostra_form as form %}
-                            {% include 'scqa/include/base_modelform.html'%}
-                            {% endwith %}
+                    <div class="row">
+                        <div class="col" id="exames">
+                            <h5 class="card-title pl-2">Exames Solicitados</h5>
+                            <div class="row">
+                                {% with entrada_exame_form as form %}
+                                {% include 'scqa/include/base_modelform.html'%}
+                                {% endwith %}
+                            </div>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-xl-3">
-                            <div class="form-group">
-                                <button type=button class="btn btn-primary" id="add_new_amostra">
-                                    <i class="fas fa-plus"></i>
-                                </button>
+                        <div class="col" id="amostras">
+                            <h5 class="card-title pl-2">Amostras Entregues</h5>
+                            <div class="row">
+                                {% with entrada_amostra_form as form %}
+                                {% include 'scqa/include/base_modelform.html'%}
+                                {% endwith %}
                             </div>
                         </div>
                     </div>
@@ -66,14 +72,6 @@
 </div>
 {% endblock %}
 {% block javascript %}
-<script>
-    $('#add_new_amostra').click(function(e) {
-        var amostra_row = document.createElement('div');
-        amostra_row.classList.add("row");
-        amostra_row.innerHTML = `{% with entrada_amostra_form as form %}{% include 'scqa/include/base_modelform.html'%}{% endwith %}`
-        document.getElementById('amostras').appendChild(amostra_row)
-    });
-</script>
 {% if form.initial.id and not is_view %}
 <script>
     $('#delete_biometria').click(function(e) {

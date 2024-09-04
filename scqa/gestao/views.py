@@ -1,10 +1,9 @@
-from datetime import timezone
-from django.utils import timezone
 from django.db import transaction
-from django.shortcuts import render, redirect
+from datetime import datetime
+from django.shortcuts import render, redirect, get_object_or_404
 
-from gestao.form import RegistroEntradaForm, EntradaAmostraForm
-from gestao.models import EntradaAmostra
+from gestao.form import RegistroEntradaForm, RegistroEntradaAmostraForm, RegistroEntradaExameForm
+from gestao.models import RegistroEntrada, RegistroEntradaExame, RegistroEntradaAmostra
 
 """
 def foo_list(request):
@@ -48,7 +47,7 @@ def registro_entrada_list(request):
     pre_context = {
         "card_title": "Registros de Entrada",
     }
-    registro_entrada_list = []
+    registro_entrada_list = RegistroEntrada.objects.all()
 
     context = {
         "registro_entrada_list": registro_entrada_list,
@@ -64,24 +63,61 @@ def registro_entrada_create(request):
 
     if request.method == 'GET':
         context = {
-            "form": RegistroEntradaForm(),
-            "entrada_amostra_form": EntradaAmostraForm(),
+            "entrada_form": RegistroEntradaForm(),
+            "entrada_amostra_form": RegistroEntradaAmostraForm(),
+            "entrada_exame_form": RegistroEntradaExameForm(),
         }
 
     if request.method == 'POST':
-        form = RegistroEntradaForm(request.POST)
+        entrada_form = RegistroEntradaForm(request.POST)
+        entrada_amostra_form = RegistroEntradaAmostraForm(request.POST)
+        entrada_exame_form = RegistroEntradaExameForm(request.POST)
 
-        if form.is_valid():
-            obj = form.save(commit=False)
-            obj.scqa_save(request)
+        if entrada_form.is_valid() and entrada_amostra_form.is_valid() and entrada_exame_form.is_valid():
+            with transaction.atomic():
+                registro_entrada_obj = entrada_form.save(commit=False)
+                registro_entrada_obj.modified_at = datetime.now()
+                registro_entrada_obj.save()
 
-            for tipo_amostra, nao_conformidade in zip(request.POST.getlist("tipo_amostra"), request.POST.getlist("nao_conformidade")):
-                entrada_amostra_obj = EntradaAmostra(registro_entrada_pk=obj.id, tipo_amostra=tipo_amostra, nao_conformidade=nao_conformidade)
-                entrada_amostra_obj.modified_at = timezone.now
+                entrada_amostra_obj = entrada_amostra_form.save(commit=False)
+                entrada_amostra_obj.registro_entrada_pk = registro_entrada_obj
+                entrada_amostra_obj.modified_at = datetime.now()
                 entrada_amostra_obj.save()
+
+                entrada_exame_obj = entrada_exame_form.save(commit=False)
+                entrada_exame_obj.registro_entrada_pk = registro_entrada_obj
+                entrada_exame_obj.modified_at = datetime.now()
+                entrada_exame_obj.save()
+
+            return redirect('registro_entrada_list')
+
         else:
+            print(entrada_form.errors)
+            print(entrada_amostra_form.errors)
+            print(entrada_exame_form.errors)
+
             context = {
-                "form": form,
+                "entrada_form": entrada_form,
+                "entrada_amostra_form": entrada_amostra_form,
+                "entrada_exame_form": entrada_exame_form,
             }
 
+    return render(request, 'gestao/registro_entrada.html', {**pre_context, **context})
+
+
+def registro_entrada_read(request, pk):
+    pre_context = {
+        "card_title": "Registro de Entrada",
+    }
+
+    entrada_obj = get_object_or_404(RegistroEntrada, id=pk)
+    entrada_exame_obj = RegistroEntradaExame.objects.get(registro_entrada_pk=entrada_obj.id)
+    entrada_amostra_obj = RegistroEntradaAmostra.objects.get(registro_entrada_pk=entrada_obj.id)
+
+    context = {
+        "is_view": True,
+        "entrada_form": RegistroEntradaForm(instance=entrada_obj, readonly=True),
+        "entrada_exame_form": RegistroEntradaExameForm(instance=entrada_exame_obj, readonly=True),
+        "entrada_amostra_form": RegistroEntradaAmostraForm(instance=entrada_amostra_obj, readonly=True),
+    }
     return render(request, 'gestao/registro_entrada.html', {**pre_context, **context})

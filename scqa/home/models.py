@@ -16,8 +16,7 @@ class ScqaModel(SoftDeleteModel):
     created_at = models.DateTimeField(blank=True, default=timezone.now)
     modified_at = models.DateTimeField(blank=True)
 
-    # modified_by = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE,
-    #                                 blank=True)
+    # modified_by = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True)
 
     def scqa_save_no_message(self, request):
         try:
