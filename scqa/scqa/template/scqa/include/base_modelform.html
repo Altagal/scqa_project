@@ -1,5 +1,5 @@
 {% for form_field in form.visible_fields %}
-<div class="{% if form_field.field.size %}col-xl-{{form_field.field.size}}{% elif form_field.field.widget.input_type %}col-xl-6{% else %}col-xl-12{% endif %}">
+<div class="{% if form_field.field.size == 0 %}col{% elif form_field.field.size %}col-xl-{{form_field.field.size}}{% elif form_field.field.widget.input_type %}col-xl-6{% else %}col-xl-12{% endif %}">
     <div class="form-group{% if form_field.errors %} has-error{% endif %}">
         {{ form_field.label_tag }}{% if form_field.field.required %}*{% endif %}
         <div class="input-group">

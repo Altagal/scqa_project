@@ -9,11 +9,12 @@ class ScqaModelForm(ModelForm):
     prepend = None  # legenda antes do input
     append = None   # legenda depois do input
 
-    # tamanho do input. De 1 ate 12.
+    # tamanho do input. De 0 ate 12.
     # 12, um input por linha.
     # 6, metade da tela, da dois inputs por linha.
     # 4, da tres inputs em uma linha.
     # 3, da quatro inputs em uma linha.
+    # 0, aplica class "col"
     size = None
 
     def __init__(self, *args, readonly=None, **kwargs, ):
