@@ -11,25 +11,31 @@
                     <div class="card-title p-2">{{card_title}}</div>
                     <div class="card-tools">
                         {% if is_view %}
-                        <a href="#" class="btn btn-primary">
+                        <a href="{% url 'registro_entrada_update' entrada_form.initial.id %}" class="btn btn-primary">
                             Editar
                         </a>
                         {% endif %}
                     </div>
                 </div>
             </div>
-            <div class="card-body">
-                <form action="{% if form.initial.id %}#{% else %}{% url 'registro_entrada_create' %}{% endif %}"
-                      method="POST">
-                    {% csrf_token %}
+            <form action="{% if entrada_form.initial.id %}{% url 'registro_entrada_update' entrada_form.initial.id %}{% else %}{% url 'registro_entrada_create' %}{% endif %}"
+                  method="POST">
+                {% csrf_token %}
+                <div class="card-body">
                     <div class="row">
                         {% with entrada_form as form %}
                         {% include 'scqa/include/base_modelform.html'%}
                         {% endwith %}
                     </div>
+                </div>
+                <div class="card-header">
+                    <div class="card-head-row">
+                        <div class="card-title p-2">Exames Solicitados</div>
+                    </div>
+                </div>
+                <div class="card-body">
                     <div class="row">
-                        <div class="col" id="exames">
-                            <h5 class="card-title pl-2">Exames Solicitados</h5>
+                        <div class="col">
                             <div class="row">
                                 {% with entrada_exame_form as form %}
                                 {% include 'scqa/include/base_modelform.html'%}
@@ -37,9 +43,15 @@
                             </div>
                         </div>
                     </div>
+                </div>
+                <div class="card-header">
+                    <div class="card-head-row">
+                        <div class="card-title p-2">Amostras Entregues</div>
+                    </div>
+                </div>
+                <div class="card-body">
                     <div class="row">
                         <div class="col" id="amostras">
-                            <h5 class="card-title pl-2">Amostras Entregues</h5>
                             <div class="row">
                                 {% with entrada_amostra_form as form %}
                                 {% include 'scqa/include/base_modelform.html'%}
@@ -47,34 +59,44 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-xl-3">
-                        </div>
-                        <div class="col-xl-3">
-                        </div>
-                        <div class="col-xl-3">
-                        </div>
-                        {% if not is_view %}
-                        <div class="col-xl-3">
-                            <div class="form-group">
-                                <button type="submit" class="btn btn-primary btn-lg btn-block">
-                                    <i class="fas fa-save"></i>
-                                    <div>Salvar</div>
-                                </button>
-                            </div>
+                </div>
+                <div class="row">
+                    <div class="col-xl-3">
+                    </div>
+                    <div class="col-xl-3">
+                    </div>
+                    <div class="col-xl-3">
+                        {% if entrada_form.initial.id and not is_view %}
+                        <div class="form-group">
+                            <a href="javascript:void(0)"
+                               class="btn btn-danger btn-lg btn-block" id="registro_entrada_delete">
+                                <i class="fas fa-trash-alt"></i>
+                                <div>Excluir</div>
+                            </a>
                         </div>
                         {% endif %}
                     </div>
-                </form>
-            </div>
+                    {% if not is_view %}
+                    <div class="col-xl-3">
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary btn-lg btn-block">
+                                <i class="fas fa-save"></i>
+                                <div>Salvar</div>
+                            </button>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </form>
         </div>
     </div>
 </div>
+</div>
 {% endblock %}
 {% block javascript %}
-{% if form.initial.id and not is_view %}
+{% if entrada_form.initial.id and not is_view %}
 <script>
-    $('#delete_biometria').click(function(e) {
+    $('#registro_entrada_delete').click(function(e) {
 	    swal({
 	        text: "Tem certeza que deseja excluir?",
 	        icon: 'info',
@@ -91,7 +113,7 @@
 	        }
             }).then((Delete) => {
 	        if (Delete) {
-                window.location.href = "{% url 'delete_biometria' form.initial.id %}"
+                window.location.href = "{% url 'registro_entrada_delete' entrada_form.initial.id %}"
 	        } else {
 		        swal.close();
 	        }
