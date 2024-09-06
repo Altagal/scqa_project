@@ -20,13 +20,13 @@ class RegistroEntradaExame(ScqaModel):
     registro_entrada_pk = models.ForeignKey("RegistroEntrada", blank=True, on_delete=models.CASCADE)
 
     exame_hematologia = models.BooleanField(default=False, verbose_name="Hematologia")
-    exame_bioquimica = models.BooleanField(default=False, verbose_name="Bioquimica")
+    exame_bioquimica = models.BooleanField(default=False, verbose_name="Bioquímica")
     exame_parasitologia = models.BooleanField(default=False, verbose_name="Parasitologia")
     exame_imunologia = models.BooleanField(default=False, verbose_name="Imunologia")
     exame_bacteriologia = models.BooleanField(default=False, verbose_name="Bacteriologia")
     exame_anatomopatologia = models.BooleanField(default=False, verbose_name="Anatomopatologia")
-    exame_monitoramento_sanitario = models.BooleanField(default=False, verbose_name="Monitoramento Sanitario")
-    exame_monitoramento_genetico = models.BooleanField(default=False, verbose_name="Monitoramento Genetico")
+    exame_monitoramento_sanitario = models.BooleanField(default=False, verbose_name="Monitoramento Sanitário")
+    exame_monitoramento_genetico = models.BooleanField(default=False, verbose_name="Monitoramento Genético")
     exame_outro = models.CharField(max_length=200, blank=True, null=True, verbose_name="Outros")
     exame_observacoes = models.TextField(blank=True, null=True, verbose_name="Observações")
 
