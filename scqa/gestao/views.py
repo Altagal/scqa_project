@@ -1,7 +1,7 @@
 from django.db import transaction
 from datetime import datetime
 from django.shortcuts import render, redirect, get_object_or_404
-
+from django.contrib import messages
 from gestao.form import RegistroEntradaForm, RegistroEntradaAmostraForm, RegistroEntradaExameForm
 from gestao.models import RegistroEntrada, RegistroEntradaExame, RegistroEntradaAmostra
 
@@ -74,32 +74,29 @@ def registro_entrada_create(request):
         entrada_exame_form = RegistroEntradaExameForm(request.POST)
 
         if entrada_form.is_valid() and entrada_amostra_form.is_valid() and entrada_exame_form.is_valid():
+
             with transaction.atomic():
                 registro_entrada_obj = entrada_form.save(commit=False)
                 registro_entrada_obj.modified_at = datetime.now()
                 registro_entrada_obj.save()
-
-                entrada_amostra_obj = entrada_amostra_form.save(commit=False)
-                entrada_amostra_obj.registro_entrada_pk = registro_entrada_obj
-                entrada_amostra_obj.modified_at = datetime.now()
-                entrada_amostra_obj.save()
 
                 entrada_exame_obj = entrada_exame_form.save(commit=False)
                 entrada_exame_obj.registro_entrada_pk = registro_entrada_obj
                 entrada_exame_obj.modified_at = datetime.now()
                 entrada_exame_obj.save()
 
+                entrada_amostra_obj = entrada_amostra_form.save(commit=False)
+                entrada_amostra_obj.registro_entrada_pk = registro_entrada_obj
+                entrada_amostra_obj.modified_at = datetime.now()
+                entrada_amostra_obj.save()
+
             return redirect('registro_entrada_list')
 
         else:
-            print(entrada_form.errors)
-            print(entrada_amostra_form.errors)
-            print(entrada_exame_form.errors)
-
             context = {
                 "entrada_form": entrada_form,
-                "entrada_amostra_form": entrada_amostra_form,
                 "entrada_exame_form": entrada_exame_form,
+                "entrada_amostra_form": entrada_amostra_form,
             }
 
     return render(request, 'gestao/registro_entrada.html', {**pre_context, **context})
@@ -121,3 +118,60 @@ def registro_entrada_read(request, pk):
         "entrada_amostra_form": RegistroEntradaAmostraForm(instance=entrada_amostra_obj, readonly=True),
     }
     return render(request, 'gestao/registro_entrada.html', {**pre_context, **context})
+
+
+def registro_entrada_update(request, pk):
+    entrada_obj = get_object_or_404(RegistroEntrada, id=pk)
+    entrada_exame_obj = RegistroEntradaExame.objects.get(registro_entrada_pk=entrada_obj.id)
+    entrada_amostra_obj = RegistroEntradaAmostra.objects.get(registro_entrada_pk=entrada_obj.id)
+
+    pre_context = {
+        "card_title": "Registro de Entrada",
+    }
+
+    if request.method == 'GET':
+        context = {
+            "entrada_form": RegistroEntradaForm(instance=entrada_obj),
+            "entrada_exame_form": RegistroEntradaExameForm(instance=entrada_exame_obj),
+            "entrada_amostra_form": RegistroEntradaAmostraForm(instance=entrada_amostra_obj),
+        }
+
+    if request.method == 'POST':
+        entrada_form = RegistroEntradaForm(request.POST, instance=entrada_obj)
+        entrada_exame_form = RegistroEntradaExameForm(request.POST, instance=entrada_exame_obj)
+        entrada_amostra_form = RegistroEntradaAmostraForm(request.POST, instance=entrada_amostra_obj)
+
+        if entrada_form.is_valid() and entrada_exame_form.is_valid() and entrada_amostra_form.is_valid():
+            with transaction.atomic():  
+                registro_entrada_obj = entrada_form.save(commit=False)
+                registro_entrada_obj.modified_at = datetime.now()
+                registro_entrada_obj.save()
+
+                entrada_exame_obj = entrada_exame_form.save(commit=False)
+                entrada_exame_obj.registro_entrada_pk = registro_entrada_obj
+                entrada_exame_obj.modified_at = datetime.now()
+                entrada_exame_obj.save()
+
+                entrada_amostra_obj = entrada_amostra_form.save(commit=False)
+                entrada_amostra_obj.registro_entrada_pk = registro_entrada_obj
+                entrada_amostra_obj.modified_at = datetime.now()
+                entrada_amostra_obj.save()
+
+                messages.success(request, "Alterado com sucesso.")
+
+            return redirect('registro_entrada_read', entrada_obj.id)
+        else:
+            context = {
+                "entrada_form": entrada_form,
+                "entrada_exame_form": entrada_exame_form,
+                "entrada_amostra_form": entrada_amostra_form,
+            }
+
+    return render(request, 'gestao/registro_entrada.html', {**pre_context, **context})
+
+
+def registro_entrada_delete(request, pk):
+    obj = get_object_or_404(RegistroEntrada, id=pk)
+    if obj.scqa_delete(request):
+        return redirect('registro_entrada_list')
+    return redirect('registro_entrada_update', obj.pk)
