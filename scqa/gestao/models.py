@@ -17,7 +17,7 @@ class RegistroEntrada(ScqaModel):
 
 
 class RegistroEntradaExame(ScqaModel):
-    registro_entrada_pk = models.ForeignKey("RegistroEntrada", blank=True, on_delete=models.PROTECT)
+    registro_entrada_pk = models.ForeignKey("RegistroEntrada", blank=True, on_delete=models.CASCADE)
 
     exame_hematologia = models.BooleanField(default=False, verbose_name="Hematologia")
     exame_bioquimica = models.BooleanField(default=False, verbose_name="Bioquimica")
@@ -32,7 +32,7 @@ class RegistroEntradaExame(ScqaModel):
 
 
 class RegistroEntradaAmostra(ScqaModel):
-    registro_entrada_pk = models.ForeignKey("RegistroEntrada", blank=True, on_delete=models.PROTECT)
+    registro_entrada_pk = models.ForeignKey("RegistroEntrada", blank=True, on_delete=models.CASCADE)
 
     amostra_status = [
         (1, "Entregue"),
